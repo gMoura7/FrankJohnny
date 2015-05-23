@@ -2,7 +2,7 @@
 *Line Following Robot with Arduino*.
 
 ### Developed by:
- - ***Gustavo M. Pereira*** </br>
+ - ***Gustavo M. Pereira a.k.a. MrOverCrash*** </br>
  - ***Camilla Sousa*** </br>
  - ***Larissa Adelini*** </br>
  - ***Matheus Assis*** </br>
