@@ -1,13 +1,12 @@
 # FrankJohnny
-Line Following Robot with Arduino.
+*Line Following Robot with Arduino*.
 
-By:
-	Gustavo Moura Pereira
-	Camilla Sousa
-	Larissa Adelini
-	Matheus de Assis
+### Developed by:
+ - ***Gustavo M. Pereira*** </br>
+ - ***Camilla Sousa*** </br>
+ - ***Larissa Adelini*** </br>
+ - ***Matheus Assis*** </br>
+
 --
-Development status: In progress
---
-Project Supervisor:
-	Marina C. S. Stenico
+###Project Supervisor:
+ - ***Marina C. S. Stenico***
