@@ -84,7 +84,7 @@ void desvio(int esquerdaPwm, int esquerdaTrig){ //Esta fun��o deve ser � p
 
   Motor1.resetPosition(); //Reseta o encoder para que n�o acumule valores, resultando em erro na pr�xima instru��o
 
-  while( (Motor1.readPosition()) != 225) md.setSpeeds(-250, 250); //Enquanto na linha preta, vira cerca de 45� � direita
+  while( (Motor1.readPosition()) != -225) md.setSpeeds(-250, 250); //Enquanto na linha preta, vira cerca de 45� � direita
 
   while( (ultraCheck(esquerdaPwm, esquerdaTrig)) < 10 ) md.setSpeeds(-200,-200); //Segue em frente enquanto o ultrassonico da esquerda "enxergar" o obstáculo
 
