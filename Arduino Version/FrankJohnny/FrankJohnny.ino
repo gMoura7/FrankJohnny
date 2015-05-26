@@ -36,8 +36,8 @@ void loop(){
 /*------------------------------------------*/
 void sigaLinha(){
   int position = qtra.readLine(sensors);
-  erro = position - 3500;
-
+  erro = 3500 - position; //Segue a linha preta(devido a montagem invertida dos motores)
+  //erro = position - 3500; //"Foge" da linha preta(devido a montagem invertida dos motores)
   deltaTime = millis() - last_time;
   last_time = millis();
   last_erro = erro;
