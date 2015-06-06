@@ -1,3 +1,4 @@
+#include <DualVNH5019MotorShield.h>
 #include <NXTShield.h>
 #include <Wire.h>
 #include <QTRSensors.h>
@@ -18,6 +19,8 @@ const float KP = 0.13, KI = 0, KD = 0;
 const int Motors = -150;
 int P = 0, I = 0, D = 0;
 int erro = 0, last_erro = 0, deltaTime = 0, last_time = 0;
+
+DualVNH5019MotorShield md;
 /*Setup------------------------------------------*/
 void setup(){
   ultraSetup(ultrapwm, ultratrig);
@@ -25,8 +28,8 @@ void setup(){
 }
 /*------------------------------------------*/
 void loop(){
-  GAP();
-  if(ultraCheck(ultrapwm, ultratrig) <= 10) desvio(esquerdaPwm, esquerdaTrig); //Procura os obstáculos
+  // GAP();
+  if(ultraCheck(ultrapwm, ultratrig) <= 10) desvio(esquerdaPwm, esquerdaTrig); //Procura os obstï¿½culos
   //encruzilhada();
   sigaLinha();
 }
@@ -52,13 +55,15 @@ void sigaLinha(){
   m2 = constrain(m2, -250, 250);
   Motor1.move( (sentido(m1)), (setspeeds(m1)) );
   Motor2.move( (sentido(m2)), (setspeeds(m2)) );
+  //md.setSpeeds(m1, m2);
 }
 /*------------------------------------------*/
 void GAP(){
   while ( (sensors[0]<600 || sensors[0]> 6000) && (sensors[1]<600 || sensors[1]> 6000) && (sensors[2]<600 || sensors[2]> 6000) && (sensors[3]<600 || sensors[3]> 6000)
     && (sensors[4]<600 || sensors[4]> 6000) && (sensors[5]<600 || sensors[5]> 6000) && (sensors[6]<600 || sensors[6]> 6000) && (sensors[7]<600 || sensors[7]> 6000) ){
     Motor1.move(FORWARD, 200 );
-    Motor2.move(FORWARD, 200);  
+    Motor2.move(FORWARD, 200);
+    //md.setSpeeds(-200, -200);  
     qtra.readLine(sensors);
   }
 }
@@ -74,92 +79,95 @@ int ultraCheck(int ultrapwm, int ultratrig){
   digitalWrite(ultratrig, LOW);
   digitalWrite(ultratrig, HIGH);
   unsigned long medicao = pulseIn(ultrapwm, LOW);
-  if(medicao < 50000) distance = medicao/50;
+  if(medicao < 50000 && medicao >= 2) distance = medicao/50;
   else return 50000;
   return distance;
 }
 
 
 /*-------------------------------------------
- * A função "desvio" a seguir será explicada em 6 passos, desde o início ao fim da mesma.
- * 1º Passo: O robô, após ter identificado o obstáculo antes, irá girar 90º graus para a Direita.
- * 2º Passo: A seguir ele andará para frente, enquanto estiver "enxergando" o obstáculo.
- * 3º Passo: Irá girar 90º graus para a Esquerda.
- * 4º Passo: Logo após ele irá andar novamente para frente enquanto estiver vendo o obstáculo.(Observação: O delay de 0.5 Segundos serve para que o robô consiga completar a lateral do obstáculo)
- * 5º Passo: O robô irá girar 45º graus para a Esquerda.
- * 6º Passo: E, finalmente, irá andar até encontrar a linha preta
- * Observação: Os resets dos encoders não estão incluídos nos passos pois eles são essenciais para o funcionamento da função, sendo desnecessário mencionaná-los.
+ * A funï¿½ï¿½o "desvio" a seguir serï¿½ explicada em 6 passos, desde o inï¿½cio ao fim da mesma.
+ * 1ï¿½ Passo: O robï¿½, apï¿½s ter identificado o obstï¿½culo antes, irï¿½ girar 90ï¿½ graus para a Direita.
+ * 2ï¿½ Passo: A seguir ele andarï¿½ para frente, enquanto estiver "enxergando" o obstï¿½culo.
+ * 3ï¿½ Passo: Irï¿½ girar 90ï¿½ graus para a Esquerda.
+ * 4ï¿½ Passo: Logo apï¿½s ele irï¿½ andar novamente para frente enquanto estiver vendo o obstï¿½culo.(Observaï¿½ï¿½o: O delay de 0.5 Segundos serve para que o robï¿½ consiga completar a lateral do obstï¿½culo)
+ * 5ï¿½ Passo: O robï¿½ irï¿½ girar 45ï¿½ graus para a Esquerda.
+ * 6ï¿½ Passo: E, finalmente, irï¿½ andar atï¿½ encontrar a linha preta
+ * Observaï¿½ï¿½o: Os resets dos encoders nï¿½o estï¿½o incluï¿½dos nos passos pois eles sï¿½o essenciais para o funcionamento da funï¿½ï¿½o, sendo desnecessï¿½rio mencionanï¿½-los.
  -------------------------------------------*/
-void desvio(int esquerdaPwm, int esquerdaTrig){ //Função para desviar do obstáculo
-  Motor1.resetPosition(); //Reseta o encoder 1 para previnir o acúmulo de valores
-  Motor2.resetPosition(); //Reseta o encoder 2 para previnir o acúmulo de valores
+void desvio(int esquerdaPwm, int esquerdaTrig){ //Funï¿½ï¿½o para desviar do obstï¿½culo
+  Motor1.resetPosition(); //Reseta o encoder 1 para previnir o acï¿½mulo de valores
+  Motor2.resetPosition(); //Reseta o encoder 2 para previnir o acï¿½mulo de valores
   
-  do{
-    Motor1.move(FORWARD, 200); //Faz o motor 1 andar para "trás" com força 200
-    Motor2.move(BACKWARD, 200);  //Faz o motor 1 andar para "trás" com força 200...
-    //Simplificando, faz o robô girar para a Direita com a mesma velocidade em ambos os motores
-  } while( (Motor1.readPosition()) > -500 && (Motor2.readPosition()) < 500); //...Enquanto a posição do motor 1 for maior que -500 (-90 graus) E a posição do motor 2 for menor que 500 (90 graus)
+  //1ï¿½ Virada do robo
+  Motor1.move(FORWARD, 200, 425, BRAKE); //Faz o motor 1 andar para "frente" com forï¿½a 200 por 150 rotaï¿½ï¿½es
+  Motor2.move(BACKWARD, 200, 425, BRAKE);  //Faz o motor 2 andar para "trï¿½s" com forï¿½a 200 por 150 rotaï¿½ï¿½es
+  while (Motor1.isTurning() || Motor2.isTurning()); //Espera um dos motores terminar seu movimento
+  
+  Motor1.resetPosition(); //Reseta o encoder 1 para previnir o acï¿½mulo de valores
+  Motor2.resetPosition(); //Reseta o encoder 2 para previnir o acï¿½mulo de valores
+  
+//Anda para frente com 150 rotaï¿½ï¿½es
+  Motor1.move(BACKWARD, 200, 700, BRAKE); //Faz o motor 1 andar para "trï¿½s" com forï¿½a 200 por 150 rotaï¿½ï¿½es
+  Motor2.move(BACKWARD, 200, 700, BRAKE); //Faz o motor 2 andar para "trï¿½s" com forï¿½a 200 por 150 rotaï¿½ï¿½es
+  while (Motor1.isTurning() || Motor2.isTurning());
+  
+  Motor1.resetPosition(); //Reseta o encoder 1 para previnir o acï¿½mulo de valores
+  Motor2.resetPosition(); //Reseta o encoder 2 para previnir o acï¿½mulo de valores
 
-  while( (ultraCheck(esquerdaPwm, esquerdaTrig)) <= 10){ //Enquanto a distância medida pelo sensor ultrassônica da esquerda for menor que 10cm
-    Motor1.move(BACKWARD, 200); //Mova o motor 1 para "trás" com força 200
-    Motor2.move(BACKWARD, 200); //Mova o motor 2 para "trás" com força 200
-    delay(500); //"Atrasa" 0.5 Segundos antes de checar novamente a condição
-    //Simplificando, faz o robô andar para "trás" (que é a nossa frente devido à montagem) com força 200
+  //faz a 2ï¿½ Virada
+  Motor1.move(BACKWARD, 200, 450, BRAKE); //Faz o motor 1 andar para "trï¿½s" com forï¿½a 200 por 150 rotaï¿½ï¿½es
+  Motor2.move(FORWARD, 200, 450, BRAKE);  //Faz o motor 2 andar para "frente" com forï¿½a 200 por 150 rotaï¿½ï¿½es
+  while (Motor1.isTurning() || Motor2.isTurning()); //Espera um dos motores terminar seu movimento
+  
+  Motor1.resetPosition(); //Reseta o encoder 1 para previnir o acï¿½mulo de valores
+  Motor2.resetPosition(); //Reseta o encoder 2 para previnir o acï¿½mulo de valores
+
+  //Anda para frente atï¿½ a hora da 3ï¿½ Virada
+  Motor1.move(BACKWARD, 200, 900, BRAKE); //Faz o motor 1 andar para "trï¿½s" com forï¿½a 200 por 150 rotaï¿½ï¿½es
+  Motor2.move(BACKWARD, 200, 900, BRAKE); //Faz o motor 2 andar para "trï¿½s" com forï¿½a 200 por 150 rotaï¿½ï¿½es
+  while (Motor1.isTurning() || Motor2.isTurning());
+
+  Motor1.resetPosition(); //Reseta o encoder 1 para previnir o acï¿½mulo de valores
+  Motor2.resetPosition(); //Reseta o encoder 2 para previnir o acï¿½mulo de valores
+  
+  Motor1.move(BACKWARD, 200, 250, BRAKE); //Faz o motor 1 andar para "trï¿½s" com forï¿½a 200
+  Motor2.move(FORWARD, 200, 250, BRAKE);  //Faz o motor 2 andar para "frente" com forï¿½a 200...
+  while (Motor1.isTurning() || Motor2.isTurning()); //Espera um dos motores terminar seu movimento
+
+  while(qtra.readLine(sensors) < 3000 || qtra.readLine(sensors) > 3900){ //Gira os motores para a Esquerda enquanto a linha preta nï¿½o ï¿½ encontrada
+    Motor1.move(BACKWARD, 200 );  //Faz o motor 1 andar para "trï¿½s" com forï¿½a 200
+    Motor2.move(BACKWARD, 200);  //Faz o motor 2 andar para "frente" com forï¿½a 200
+    //Faz o robï¿½ girar para a Esquerda com a mesma velocidade em ambos os motores
   }
-  
-  Motor1.resetPosition(); //Reseta o encoder 1 para previnir o acúmulo de valores
-  Motor2.resetPosition(); //Reseta o encoder 2 para previnir o acúmulo de valores
-  
-  do{ //O "do" executa o bloco de código primeiro para depois checar a condição do  while
-    Motor1.move(BACKWARD, 200); //Mova o motor 1 para "frente" com força 200
-    Motor2.move(FORWARD, 200); //Mova o motor 2 para "trás" com força 200...
-    //Simplificando, faz o robô girar para a Esquerda com a mesma velocidade em ambos os motores
-  }while( (Motor1.readPosition()) < 500 && (Motor2.readPosition()) > -500); //...Enquanto a posição do motor 1 for menor que 500 E a do motor 2 for maior que -500
-  
-  do{ 
-    Motor1.move(BACKWARD, 200); //Mova o motor 1 para "trás" com força 200
-    Motor2.move(BACKWARD, 200); //Mova o motor 2 para "trás" com força 200
-    delay(500); //Aguarde 0,5 segundos antes (nesse período o robô não parará de andar)
-  }while( (ultraCheck(esquerdaPwm, esquerdaTrig)) <= 10); //Enquanto a distância medida pelo sensor ultrassônica da esquerda for menor que 10cm
-  
-  Motor1.resetPosition(); //Reseta o encoder 1 para previnir o acúmulo de valores
-  Motor2.resetPosition(); //Reseta o encoder 2 para previnir o acúmulo de valores
-  
-  do{
-    Motor1.move(FORWARD, 200); //Mova o motor 1 para "trás" com força 200
-    Motor2.move(BACKWARD, 200); //Mova o motor 2 para "frente" com força 200
-  }while( (Motor1.readPosition()) > -250 && (Motor2.readPosition()) < 250); //...Enquanto a posição do motor 1 for maior que -250 (-45 graus) E a do motor 2 for menor que 250 (45 graus)
-  
-  do{
-    Motor1.move(BACKWARD, 200); //Mova o motor 1 para "trás" com força 200
-    Motor2.move(BACKWARD, 200); //Mova o motor 2 para "trás" com força 200...
-  }while( (qtra.readLine(sensors)) < 3000 || (qtra.readLine(sensors)) > 3900); //...Enquanto o robô não encontrar a linha preta
-} //Fim da função
+} //Fim da funï¿½ï¿½o
 
 /*------------------------------------------*/
 void calibrar(int vel1, int vel2){
-    Motor1.move(FORWARD, 200 ); //Faz o motor 1 andar para "frente" com força 200
-    Motor2.move(BACKWARD, 200 );  //Faz o motor 2 andar para "trás" com força 200
-    //Faz o robô girar para a Direita com a mesma velocidade em ambos os motores
+    Motor1.move(FORWARD, 200 ); //Faz o motor 1 andar para "frente" com forï¿½a 200
+    Motor2.move(BACKWARD, 200 );  //Faz o motor 2 andar para "trï¿½s" com forï¿½a 200
+    //md.setSpeeds(200, -200);
+    //Faz o robï¿½ girar para a Direita com a mesma velocidade em ambos os motores
   for(int x = 0; x < 90; x++){
     qtra.calibrate(); //Calibra os sensores
     delay(20); //Aguarda 0.02 segundos antes de prosseguir o loop
   }
   
-  while(qtra.readLine(sensors) < 3000 || qtra.readLine(sensors) > 3900){ //Gira os motores para a Esquerda enquanto a linha preta não é encontrada
-    Motor1.move(BACKWARD, 200 );  //Faz o motor 1 andar para "trás" com força 200
-    Motor2.move(FORWARD, 200);  //Faz o motor 2 andar para "frente" com força 200
-    //Faz o robô girar para a Esquerda com a mesma velocidade em ambos os motores
+  while(qtra.readLine(sensors) < 3000 || qtra.readLine(sensors) > 3900){ //Gira os motores para a Esquerda enquanto a linha preta nï¿½o ï¿½ encontrada
+    Motor1.move(BACKWARD, 200 );  //Faz o motor 1 andar para "trï¿½s" com forï¿½a 200
+    Motor2.move(FORWARD, 200);  //Faz o motor 2 andar para "frente" com forï¿½a 200
+    //md.setSpeeds(200, -200);
+    //Faz o robï¿½ girar para a Esquerda com a mesma velocidade em ambos os motores
   }
 }
 /*------------------------------------------*/
 
 int setspeeds(int vel) { 
-  if(vel < 0) return -vel; //Se o valor (velocidade neste caso) entregue a função for negativo, retorne o oposto desse valor, isto é, multiplique o valor negativo por "-1".
+  if(vel < 0) return -vel; //Se o valor (velocidade neste caso) entregue a funï¿½ï¿½o for negativo, retorne o oposto desse valor, isto ï¿½, multiplique o valor negativo por "-1".
   return vel; //...Retorne o mesmo valor
 }
 
 int sentido(int vel){
-  if(vel < 0) return BACKWARD; //Se o valor (velocidade neste caso) entregue a função for negativo, retorne o sentido como sendo para TRÁS, caso contrário...
+  if(vel < 0) return BACKWARD; //Se o valor (velocidade neste caso) entregue a funï¿½ï¿½o for negativo, retorne o sentido como sendo para TRï¿½S, caso contrï¿½rio...
   return FORWARD; //...Retorne o sentido como sendo para FRENTE
 }
