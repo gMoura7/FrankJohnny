@@ -1,4 +1,4 @@
-#include <DualVNH5019MotorShield.h>
+
 #include <NXTShield.h>
 #include <Wire.h>
 #include <QTRSensors.h>
@@ -20,7 +20,6 @@ const int Motors = -150;
 int P = 0, I = 0, D = 0;
 int erro = 0, last_erro = 0, deltaTime = 0, last_time = 0;
 
-DualVNH5019MotorShield md;
 /*Setup------------------------------------------*/
 void setup(){
   ultraSetup(ultrapwm, ultratrig);
@@ -55,7 +54,6 @@ void sigaLinha(){
   m2 = constrain(m2, -250, 250);
   Motor1.move( (sentido(m1)), (setspeeds(m1)) );
   Motor2.move( (sentido(m2)), (setspeeds(m2)) );
-  //md.setSpeeds(m1, m2);
 }
 /*------------------------------------------*/
 void GAP(){
@@ -63,7 +61,6 @@ void GAP(){
     && (sensors[4]<600 || sensors[4]> 6000) && (sensors[5]<600 || sensors[5]> 6000) && (sensors[6]<600 || sensors[6]> 6000) && (sensors[7]<600 || sensors[7]> 6000) ){
     Motor1.move(FORWARD, 200 );
     Motor2.move(FORWARD, 200);
-    //md.setSpeeds(-200, -200);  
     qtra.readLine(sensors);
   }
 }
@@ -146,7 +143,6 @@ void desvio(int esquerdaPwm, int esquerdaTrig){ //Fun��o para desviar do obs
 void calibrar(int vel1, int vel2){
     Motor1.move(FORWARD, 200 ); //Faz o motor 1 andar para "frente" com for�a 200
     Motor2.move(BACKWARD, 200 );  //Faz o motor 2 andar para "tr�s" com for�a 200
-    //md.setSpeeds(200, -200);
     //Faz o rob� girar para a Direita com a mesma velocidade em ambos os motores
   for(int x = 0; x < 90; x++){
     qtra.calibrate(); //Calibra os sensores
@@ -156,7 +152,6 @@ void calibrar(int vel1, int vel2){
   while(qtra.readLine(sensors) < 3000 || qtra.readLine(sensors) > 3900){ //Gira os motores para a Esquerda enquanto a linha preta n�o � encontrada
     Motor1.move(BACKWARD, 200 );  //Faz o motor 1 andar para "tr�s" com for�a 200
     Motor2.move(FORWARD, 200);  //Faz o motor 2 andar para "frente" com for�a 200
-    //md.setSpeeds(200, -200);
     //Faz o rob� girar para a Esquerda com a mesma velocidade em ambos os motores
   }
 }
