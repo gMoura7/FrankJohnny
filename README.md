@@ -1,10 +1,10 @@
 # FrankJohnny
 *Robô seguidor de linha com Arduino*.
 
-### Developed by:
+### Desenvolvido por:
  - ***Gustavo M. Pereira*** </br>
  - ***Camilla Sousa*** </br>
  - ***Larissa Adelini*** </br>
  - ***Matheus Assis*** </br>
-### Project Supervisor:
+### Supervisora do Projeto:
  - ***Marina C. S. Stenico***
